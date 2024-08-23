@@ -3,25 +3,43 @@ import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  authFailure,
+  authStart,
+  authSuccess,
+} from "@/store/Actions/authSlice.action";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const RegisterCard = () => {
   const [registerForm, setRegisterForm] = useState({
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
+  const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const { loading } = useSelector((state) => state.auth);
+  const router = useRouter();
 
   const handleChangeInputText = (e) => {
     const { id, value } = e.target;
+
     setRegisterForm((prev) => ({
       ...prev,
       [id]: value,
     }));
   };
 
-  const handleSubmitRegisterForm = (e) => {
+  const handleSubmitRegisterForm = async (e) => {
     e.preventDefault();
+    if (!registerForm.email || !registerForm.password) return;
     try {
-      console.log(registerForm);
+      const res = await axios.post(`${apiUri}/api/auth/register`, registerForm);
+      const data = res.data;
+      console.log(data);
+      router.push("/");
     } catch (error) {
       console.log(error);
     }
@@ -58,7 +76,11 @@ const RegisterCard = () => {
             />
           </div>
           <Button type="submit" className="font-bold text-lg">
-            Register
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              "Register"
+            )}
           </Button>
         </form>
       </CardContent>
