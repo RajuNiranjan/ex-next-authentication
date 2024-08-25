@@ -1,35 +1,34 @@
-import React, { useState } from "react";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useDispatch, useSelector } from "react-redux";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import React from "react";
 import {
   authFailure,
   authStart,
   authSuccess,
-} from "@/store/Actions/authSlice.action";
-import { useRouter } from "next/navigation";
+} from "@/store/actions/auth.action";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 
-const LogInCard = () => {
-  const [logInForm, setLogInForm] = useState({
+const LogIn = () => {
+  const [logInFrom, setLogInForm] = React.useState({
+    userName: "",
     email: "",
     password: "",
   });
-
-  const distpatch = useDispatch();
-  const router = useRouter();
   const apiUri = process.env.NEXT_PUBLIC_API_URI;
+  const dispatch = useDispatch();
+  const router = useRouter();
   const { loading } = useSelector((state) => state.auth);
-
   const handleChangeInputText = (e) => {
     const { id, value } = e.target;
     setLogInForm((prev) => ({
@@ -40,52 +39,51 @@ const LogInCard = () => {
 
   const handleSubmitLogInForm = async (e) => {
     e.preventDefault();
-    if (!logInForm.email || !logInForm.password) return;
-    distpatch(authStart());
+
+    if (!logInFrom.email || !logInFrom.password) return;
+
+    dispatch(authStart());
+
     try {
-      const res = await axios.post(`${apiUri}/api/auth/login`, logInForm);
-      const data = res.data;
+      const response = await axios.post(`${apiUri}/api/auth/login`, logInFrom);
+      const data = response.data;
       console.log(data);
-      distpatch(authSuccess());
       router.push("/");
+      dispatch(authSuccess(data.token));
     } catch (error) {
       console.log(error);
-      distpatch(authFailure(error));
+      dispatch(authFailure(error));
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen">
       <Card className="w-[450px]">
-        <CardHeader className="text-center font-bold text-xl">
-          Log In
+        <CardHeader className="text-4xl text-center font-bold">
+          LogIn
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={handleSubmitLogInForm}
-            className="flex flex-col gap-4"
-          >
-            <div>
-              <Label htmlFor="email">Email</Label>
+          <form onSubmit={handleSubmitLogInForm} className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <Label className="text-sm">Email</Label>
               <Input
                 type="email"
                 id="email"
                 placeholder="john@gmail.com"
-                value={logInForm.email}
+                value={logInFrom.email}
                 onChange={handleChangeInputText}
               />
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
+            <div className="flex flex-col space-y-2">
+              <Label className="text-sm">Password</Label>
               <Input
                 type="password"
                 id="password"
-                placeholder="Your password"
-                value={logInForm.password}
+                value={logInFrom.password}
                 onChange={handleChangeInputText}
               />
             </div>
-            <Button type="submit" className="font-bold text-lg">
+            <Button type="submit" className="w-full">
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
@@ -94,15 +92,14 @@ const LogInCard = () => {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex justify-center items-center text-sm">
-          Don&apos;t have an account ?{" "}
-          <Link href="/register" className="text-blue-500">
-            Register
-          </Link>
+        <CardFooter className="flex justify-center items-center">
+          <small>
+            Don&apos;t have an account ? <Link href="/register">Register</Link>
+          </small>
         </CardFooter>
       </Card>
     </div>
   );
 };
 
-export default LogInCard;
+export default LogIn;
