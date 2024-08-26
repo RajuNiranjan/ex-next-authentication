@@ -53,8 +53,9 @@ const Register = () => {
 
       const data = response.data;
       console.log(data);
+      localStorage.setItem(data.token);
       router.push("/");
-      dispatch(authSuccess(data.token));
+      dispatch(authSuccess(data.user));
     } catch (error) {
       console.log(error);
       dispatch(authFailure(error));

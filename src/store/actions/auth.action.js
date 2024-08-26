@@ -3,7 +3,7 @@ const { createSlice } = require("@reduxjs/toolkit");
 const initialState = {
   loading: false,
   error: null,
-  token: null,
+  user: null,
 };
 
 const authSlice = createSlice({
@@ -13,11 +13,10 @@ const authSlice = createSlice({
     authStart: (state) => {
       state.loading = true;
       state.error = null;
-      state.token = null;
+      state.user = null;
     },
     authSuccess: (state, action) => {
-      state.token = action.payload;
-      localStorage.setItem("token", action.payload);
+      state.user = action.payload;
       state.loading = false;
       state.error = null;
     },
